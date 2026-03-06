@@ -1,0 +1,43 @@
+{
+  "name": "focus-flow-pomodoro",
+  "displayName": "Focus Flow — Pomodoro Timer",
+  "description": "A beautifully animated pomodoro timer with glassmorphism, ambient animations, and focus/break tracking.",
+  "version": "0.1.0",
+  "publisher": "nickhilster",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "pomodoro",
+    "timer",
+    "focus",
+    "productivity"
+  ],
+  "activationEvents": [],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "focusFlow.openTimer",
+        "title": "Focus Flow: Open Pomodoro Timer",
+        "icon": "$(clock)"
+      }
+    ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "focusFlowPanel",
+          "title": "Focus Flow",
+          "icon": "$(clock)"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "package": "npx -y @vscode/vsce package --no-dependencies"
+  },
+  "devDependencies": {}
+}
