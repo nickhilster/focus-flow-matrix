@@ -445,6 +445,7 @@
   let currentPalette = 'classic';
   let matrixSpeedFactor = 3;
   let matrixDensityFactor = 3;
+  let lastFrameTime = 0;
 
   function matrixInit() {
     matrixCanvas = $('#matrixCanvas');
@@ -482,7 +483,9 @@
   function matrixReset() {
     if (!matrixCanvas) return;
     const fontSize = 18;
-    const colSpacing = Math.max(6, 20 - matrixDensityFactor * 3); // More density = tighter spacing
+    // Lower end for density needs lower values (wider spacing).
+    // Factor 1 -> 40px spacing (very sparse), Factor 5 -> 8px spacing
+    const colSpacing = Math.max(2, 48 - (matrixDensityFactor * 8));
     const colWidth = fontSize + colSpacing;
     const numCols = Math.ceil(matrixCanvas.width / colWidth);
 
@@ -491,74 +494,71 @@
       matrixColumns.push({
         x: i * colWidth + colWidth / 2,
         y: Math.random() * -matrixCanvas.height * 2, // stagger start
-        speed: 0.5 + Math.random() * 2,
-        fontSize: fontSize + Math.floor(Math.random() * 4) - 2,
-        chars: [],
-        length: 8 + Math.floor(Math.random() * 25),
+        speed: 15 + Math.random() * 20, // base speed pixels
+        lastDrawnY: -100, // tracks our grid cell
         opacity: 0.5 + Math.random() * 0.5,
       });
     }
   }
 
-  function matrixDraw() {
+  function matrixDraw(time) {
     if (!matrixRunning) return;
+    matrixAnimId = requestAnimationFrame(matrixDraw);
+
+    // Delta time cap to avoid jumps when tab is inactive
+    const deltaTime = Math.min((time - lastFrameTime) || 16.6, 50);
+    lastFrameTime = time;
+
     const palette = PALETTES[currentPalette];
     const w = matrixCanvas.width, h = matrixCanvas.height;
 
-    // Fade effect
+    // Apply global fade effect (highly performant compared to rendering full trails)
     matrixCtx.fillStyle = palette.bg;
     matrixCtx.fillRect(0, 0, w, h);
 
-    // Adjusted speed multiplier to be ~30% at lowest setting (where lowest setting is typically 1).
-    const speedMult = 0.05 + matrixSpeedFactor * 0.2;
+    const fontSize = 18;
+    matrixCtx.font = `${fontSize}px "JetBrains Mono", "MS Gothic", monospace`;
+
+    // Speed curve adjustment for super slow at lower bounds
+    // Factor 1 -> ~0.05 (extremely slow), Factor 5 -> 1.05 (fast)
+    const speedMult = 0.01 + (matrixSpeedFactor * matrixSpeedFactor * 0.04); 
 
     for (let col of matrixColumns) {
-      const charSet = palette.chars;
-      const char = charSet[Math.floor(Math.random() * charSet.length)];
-      const x = col.x;
-      const y = col.y;
+      col.y += col.speed * speedMult * deltaTime * 0.1;
+      const currentGridY = Math.floor(col.y / fontSize) * fontSize;
 
-      matrixCtx.font = `${col.fontSize}px "JetBrains Mono", "MS Gothic", monospace`;
+      if (currentGridY > col.lastDrawnY) {
+        const charSet = palette.chars;
 
-      // Draw the head (brightest)
-      matrixCtx.fillStyle = palette.headColor;
-      matrixCtx.globalAlpha = col.opacity;
-      matrixCtx.fillText(char, x, y);
-
-      // Draw the trail
-      for (let t = 1; t < col.length; t++) {
-        const trailY = y - t * (col.fontSize + 2);
-        if (trailY < -col.fontSize) continue;
-
-        const trailChar = charSet[Math.floor(Math.random() * charSet.length)];
-        const fadeProgress = t / col.length;
-
-        if (palette.isRainbow) {
-          const colorIndex = (t + Math.floor(Date.now() / 200)) % palette.colors.length;
-          matrixCtx.fillStyle = palette.colors[colorIndex];
-        } else {
-          const colorIndex = Math.min(Math.floor(fadeProgress * (palette.colors.length - 1)), palette.colors.length - 1);
-          matrixCtx.fillStyle = palette.colors[colorIndex];
+        // Overwrite the previous "head" character with a regular trailing color
+        if (col.lastDrawnY >= 0) {
+          const colColor = palette.isRainbow 
+            ? palette.colors[(Math.floor(Date.now() / 200) + col.x) % palette.colors.length] 
+            : palette.colors[Math.floor(Math.random() * palette.colors.length)];
+          
+          matrixCtx.fillStyle = colColor;
+          matrixCtx.globalAlpha = col.opacity;
+          matrixCtx.fillText(charSet[Math.floor(Math.random() * charSet.length)], col.x, col.lastDrawnY);
         }
 
-        matrixCtx.globalAlpha = col.opacity * (1 - fadeProgress * 0.8);
-        matrixCtx.fillText(trailChar, x, trailY);
-      }
+        // Draw the new bright head character
+        const headChar = charSet[Math.floor(Math.random() * charSet.length)];
+        matrixCtx.fillStyle = palette.headColor;
+        matrixCtx.globalAlpha = col.opacity;
+        matrixCtx.fillText(headChar, col.x, currentGridY);
 
-      // Move column down
-      col.y += col.speed * speedMult * (col.fontSize + 2);
+        col.lastDrawnY = currentGridY;
 
-      // Reset when trail fully exits screen
-      if (col.y - col.length * (col.fontSize + 2) > h) {
-        col.y = Math.random() * -200 - 50;
-        col.speed = 0.5 + Math.random() * 2;
-        col.length = 8 + Math.floor(Math.random() * 25);
-        col.opacity = 0.5 + Math.random() * 0.5;
+        // Reset column if totally off screen
+        if (currentGridY > h && Math.random() > 0.95) {
+          col.y = -fontSize - (Math.random() * 200);
+          col.lastDrawnY = -100;
+          col.speed = 15 + Math.random() * 20;
+          col.opacity = 0.5 + Math.random() * 0.5;
+        }
       }
     }
-
     matrixCtx.globalAlpha = 1;
-    matrixAnimId = requestAnimationFrame(matrixDraw);
   }
 
   function matrixStart() {
