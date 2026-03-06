@@ -481,7 +481,7 @@
 
   function matrixReset() {
     if (!matrixCanvas) return;
-    const fontSize = 14;
+    const fontSize = 18;
     const colSpacing = Math.max(6, 20 - matrixDensityFactor * 3); // More density = tighter spacing
     const colWidth = fontSize + colSpacing;
     const numCols = Math.ceil(matrixCanvas.width / colWidth);
@@ -509,7 +509,8 @@
     matrixCtx.fillStyle = palette.bg;
     matrixCtx.fillRect(0, 0, w, h);
 
-    const speedMult = 0.3 + matrixSpeedFactor * 0.5;
+    // Adjusted speed multiplier to be ~30% at lowest setting (where lowest setting is typically 1).
+    const speedMult = 0.05 + matrixSpeedFactor * 0.2;
 
     for (let col of matrixColumns) {
       const charSet = palette.chars;
