@@ -64,7 +64,6 @@
       id="btnToggleTopMenu"
       type="button"
       aria-expanded="true"
-      aria-label="Toggle navigation tabs"
       title="Hide Tabs"
     >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -76,10 +75,9 @@
       id="btnDensityMode"
       type="button"
       aria-pressed="false"
-      aria-label="Toggle density mode"
-      title="Toggle density mode"
+      title="Switch to Compact mode"
     >
-      <span class="density-label">Mode: Default</span>
+      Compact
     </button>
 
     <!-- ====== TIMER VIEW ====== -->
@@ -98,7 +96,7 @@
               <span class="session-dot"></span>
               <span class="session-dot"></span>
             </div>
-            <button class="timer-tool-close" id="btnCloseTimerTool" type="button" aria-label="Close timer tool" title="Close Timer">
+            <button class="timer-tool-close" id="btnCloseTimerTool" type="button" title="Close Timer">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -341,18 +339,14 @@
             <h2 class="tasks-title">FlowBoard</h2>
             <p class="tasks-subtitle">Task-first workspace</p>
           </div>
-            <div class="tasks-header-actions">
+          <div class="tasks-header-actions">
             <span class="tasks-count" id="tasksCount">0</span>
-            <button class="tasks-tool-btn" id="btnToggleMatrixFx" type="button" aria-pressed="false" aria-label="Toggle matrix background">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3v18M10 6v15M15 3v18M20 6v15"/><path d="M4 3h2M9 6h2M14 3h2M19 6h2"/></svg>
-              <span class="tool-label">Matrix</span>
+            <button class="tasks-tool-btn" id="btnToggleMatrixFx" type="button" aria-pressed="false">
+              Matrix
             </button>
-            <button class="tasks-tool-btn" id="btnToggleTimerTool" type="button" aria-pressed="false" aria-label="Toggle timer panel">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span class="tool-label">Timer</span>
-            </button>
-            <button class="tasks-tool-btn" id="btnExportArchive" type="button" title="Export archived tasks" aria-label="Export archived tasks">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><polyline points="8 7 12 3 16 7"/><rect x="3" y="17" width="18" height="4" rx="1"/></svg>
+            <button class="tasks-tool-btn" id="btnToggleTimerTool" type="button" aria-pressed="false">
+              Timer
+              <span class="timer-mini-counter" id="timerMiniCounter"></span>
             </button>
             <button class="tasks-tool-btn settings-chip" id="btnSettings" type="button" title="Settings">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -365,23 +359,14 @@
           </div>
         </header>
 
-        <!-- Mini timer shown when main timer panel is closed -->
-        <div class="mini-timer hidden" id="miniTimer" aria-hidden="true">
-          <div class="mini-timer-time" id="miniTimerTime">25:00</div>
-          <div class="mini-timer-label" id="miniTimerLabel">FOCUS TIME</div>
-        </div>
-
         <div class="task-card">
-          <div class="task-input-wrapper">
-            <input
-              type="text"
-              class="task-input"
-              id="taskInput"
-              placeholder="What are we working on?"
-              maxlength="140"
-            />
-            <span class="char-counter" id="charCounter">0/140</span>
-          </div>
+          <input
+            type="text"
+            class="task-input"
+            id="taskInput"
+            placeholder="What are we working on?"
+            maxlength="140"
+          />
 
           <div class="task-meta">
             <div class="task-meta-group">
@@ -473,7 +458,6 @@
       <button
         class="matrix-palette-toggle"
         id="btnToggleMatrixControls"
-        aria-label="Toggle color palette controls"
         title="Toggle Palette"
       >
         <svg
@@ -491,7 +475,7 @@
       <div class="matrix-controls collapsed" id="matrixControls">
         <div class="matrix-controls-header">
           <div class="palette-label">Color Palette</div>
-          <button class="close-matrix-controls" id="btnCloseMatrixControls" aria-label="Close color palette">
+          <button class="close-matrix-controls" id="btnCloseMatrixControls">
             <svg
               viewBox="0 0 24 24"
               fill="none"

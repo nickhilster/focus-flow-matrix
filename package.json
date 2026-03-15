@@ -1,7 +1,7 @@
 {
   "name": "focus-flow-pomodoro",
-  "displayName": "Focus Flow — Pomodoro Timer",
-  "description": "A beautifully animated pomodoro timer with glassmorphism, ambient animations, and focus/break tracking.",
+  "displayName": "FlowBoard - Task Workspace",
+  "description": "A task-first workspace with optional pomodoro timer and matrix ambience.",
   "version": "0.1.0",
   "publisher": "nickhilster",
   "engines": {
@@ -22,22 +22,33 @@
     "commands": [
       {
         "command": "focusFlow.openTimer",
-        "title": "Focus Flow: Open Pomodoro Timer",
+        "title": "FlowBoard: Open Task Workspace",
         "icon": "$(clock)"
       }
     ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "focusFlow.openTimer",
+          "group": "navigation@-999"
+        }
+      ]
+    },
     "viewsContainers": {
       "panel": [
         {
           "id": "focusFlowPanel",
-          "title": "Focus Flow",
+          "title": "FlowBoard",
           "icon": "$(clock)"
         }
       ]
     }
   },
   "scripts": {
+    "sync:webview": "node scripts/sync-webview.js",
+    "prepackage": "npm run sync:webview",
     "package": "npx -y @vscode/vsce package --no-dependencies"
   },
   "devDependencies": {}
 }
+

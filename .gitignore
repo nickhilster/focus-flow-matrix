@@ -6,3 +6,4 @@ node_modules/
 out/
 dist/
 .env
+archived_tasks.json
