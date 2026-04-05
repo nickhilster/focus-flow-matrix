@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatTime, getDuration, resolveNextTimerMode } from '../../timer.js';
+import { formatTime, getDuration, resolveNextTimerMode, switchTimerMode } from '../../timer.js';
 
 describe('timer helpers', () => {
   it('formats seconds to mm:ss', () => {
@@ -21,5 +21,30 @@ describe('timer helpers', () => {
   it('returns focus after a break', () => {
     expect(resolveNextTimerMode('short-break', 2, 4)).toBe('focus');
     expect(resolveNextTimerMode('long-break', 4, 4)).toBe('focus');
+  });
+
+  it('preserves existing body classes when switching timer mode', () => {
+    const originalDocument = global.document;
+    const classNames = new Set(['panel-timer', 'matrix-enabled', 'density-compact']);
+    global.document = {
+      body: {
+        className: 'panel-timer matrix-enabled density-compact',
+        classList: {
+          add: (name) => classNames.add(name),
+          remove: (...names) => names.forEach((name) => classNames.delete(name)),
+          contains: (name) => classNames.has(name),
+        },
+      },
+    };
+
+    try {
+      switchTimerMode('short-break');
+      expect(classNames.has('panel-timer')).toBe(true);
+      expect(classNames.has('matrix-enabled')).toBe(true);
+      expect(classNames.has('density-compact')).toBe(true);
+      expect(classNames.has('theme-short-break')).toBe(true);
+    } finally {
+      global.document = originalDocument;
+    }
   });
 });

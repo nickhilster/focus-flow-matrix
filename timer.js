@@ -227,7 +227,8 @@ export function switchTimerMode(mode) {
   timerState.totalSeconds = getDuration(mode);
   timerState.remainingSeconds = timerState.totalSeconds;
   timerState.updatedAt = Date.now();
-  document.body.className = `theme-${mode}`;
+  document.body.classList.remove('theme-focus', 'theme-short-break', 'theme-long-break');
+  document.body.classList.add(`theme-${mode}`);
   updateDisplay();
   updateSessionDots();
   saveState();

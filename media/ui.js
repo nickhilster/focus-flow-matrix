@@ -1,5 +1,3 @@
-import { queuePersistAppState } from './state.js';
-
 const VALID_PANELS = new Set(['tasks', 'timer', 'settings']);
 let activePanel = 'tasks';
 let previousPanel = 'tasks';

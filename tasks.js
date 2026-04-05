@@ -202,6 +202,15 @@ function updateTaskStatus(taskId, nextStatus) {
   saveState();
 }
 
+function syncTaskButtonSelection() {
+  taskEls.agentButtons.forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.agent === taskState.selectedAgent);
+  });
+  taskEls.statusButtons.forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.status === taskState.selectedStatus);
+  });
+}
+
 function bindTaskEvents() {
   taskEls.agentButtons.forEach((button) => {
     button.addEventListener('click', () => {
@@ -228,6 +237,18 @@ function bindTaskEvents() {
       e.preventDefault();
       addTask(taskEls.taskInput.value);
     }
+  });
+
+  $('#btnExportArchive')?.addEventListener('click', () => {
+    const archived = loadArchivedTasks();
+    if (!archived.length) return;
+    const blob = new Blob([JSON.stringify(archived, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `flowboard-archive-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   });
 
   taskEls.tasksList?.addEventListener('click', (event) => {

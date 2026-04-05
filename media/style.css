@@ -319,6 +319,10 @@ body.matrix-active .ambient-bg {
   -webkit-backdrop-filter: blur(16px);
 }
 
+.density-toggle .density-label {
+  white-space: nowrap;
+}
+
 .view-switcher.collapsed ~ .density-toggle {
   top: 10px;
 }
@@ -523,7 +527,7 @@ body.matrix-active .ambient-bg {
   stroke-linecap: round;
   stroke-dasharray: 722.57;
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.5s var(--ease-smooth);
+  transition: stroke-dashoffset 0.15s var(--ease-smooth);
 }
 
 .gradient-stop-1 {
@@ -1021,6 +1025,30 @@ body.reduced-motion .palette-swatch {
   transition-duration: 80ms !important;
 }
 
+/* ====== FOCUS INDICATORS (ACCESSIBILITY) ====== */
+.view-tab:focus-visible,
+.mode-btn:focus-visible,
+.control-btn:focus-visible,
+.choice-btn:focus-visible,
+.palette-swatch:focus-visible,
+.tasks-tool-btn:focus-visible,
+.top-menu-toggle:focus-visible,
+.density-toggle:focus-visible,
+.settings-toggle:focus-visible,
+.matrix-palette-toggle:focus-visible,
+.close-matrix-controls:focus-visible,
+.timer-tool-close:focus-visible,
+.stepper-btn:focus-visible,
+.toggle-btn:focus-visible,
+.settings-close:focus-visible,
+.task-add-btn:focus-visible,
+.agent-btn:focus-visible,
+.status-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+  z-index: 10;
+}
+
 /* ====== TASKS VIEW ====== */
 .view-tasks .tasks-app {
   position: relative;
@@ -1105,6 +1133,35 @@ body.reduced-motion .palette-swatch {
   padding: 8px 10px;
   outline: none;
   transition: all var(--transition-fast);
+}
+
+.task-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.char-counter {
+  position: absolute;
+  bottom: -18px;
+  right: 4px;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.char-counter.visible {
+  opacity: 1;
+}
+
+.char-counter.warning {
+  color: #facc15;
+}
+
+.char-counter.limit {
+  color: #ef4444;
 }
 
 .task-input::placeholder {
@@ -1305,6 +1362,12 @@ input:focus-visible,
   letter-spacing: 0.06em;
 }
 
+.task-item-left {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .task-agent-chip,
 .task-status-chip {
   display: inline-flex;
@@ -1349,52 +1412,6 @@ input:focus-visible,
   width: 11px;
   height: 11px;
   stroke-width: 2;
-}
-
-.task-item-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: flex-end;
-  margin-top: 2px;
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-.task-item:hover .task-item-actions {
-  opacity: 1;
-}
-
-.task-action-btn {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.task-action-btn svg {
-  width: 11px;
-  height: 11px;
-  pointer-events: none;
-}
-
-.task-archive-btn:hover {
-  background: rgba(108, 92, 231, 0.18);
-  border-color: rgba(108, 92, 231, 0.4);
-  color: var(--focus-secondary);
-}
-
-.task-delete-btn:hover {
-  background: rgba(220, 53, 69, 0.18);
-  border-color: rgba(220, 53, 69, 0.4);
-  color: #ff6b6b;
 }
 
 /* ====== MATRIX VIEW ====== */
@@ -1912,19 +1929,19 @@ input:focus-visible,
 
 .timer-tool {
   position: fixed;
-  top: 50%;
-  left: 50%;
+  right: 12px;
+  bottom: 12px;
   width: min(360px, calc(100vw - 24px));
-  z-index: 40;
+  z-index: 30;
   opacity: 0;
-  transform: translate(-50%, calc(-50% + 12px)) scale(0.98);
+  transform: translateY(8px) scale(0.98);
   pointer-events: none;
   transition: all var(--transition-fast);
 }
 
 .timer-tool.open {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
@@ -1935,19 +1952,93 @@ input:focus-visible,
   min-height: auto;
   padding: 12px;
   gap: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   border-radius: var(--radius-lg);
   border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(11, 13, 23, 0.4);
+}
+/* When matrix is enabled, increase board opacity on hover for readability */
+body.matrix-enabled .view-tasks .tasks-app:hover {
   background: rgba(11, 13, 23, 0.9);
-  backdrop-filter: blur(22px);
 }
 
+/* Center the timer within its floating panel and give it a consistent size */
 .timer-tool .timer-container {
-  width: 178px;
-  height: 178px;
+  width: var(--timer-size);
+  height: var(--timer-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin: 0 auto;
+}
+
+/* Task item controls */
+.task-item-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.task-control-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.task-control-btn:hover { color: var(--text-primary); border-color: var(--border); }
+.task-control-btn svg { width: 14px; height: 14px; }
+
+/* Compact / iconographic toolbar: hide labels when density compact or narrow screens */
+.tasks-tool-btn .tool-label { margin-left: 8px; font-size: 0.82rem; }
+body.density-compact .tasks-tool-btn .tool-label { display: none; }
+@media (max-width: 520px) {
+  .tasks-tool-btn .tool-label { display: none; }
+}
+
+/* Delete (destructive) button visual treatment */
+.task-control-btn.delete-btn {
+  border-color: rgba(255, 80, 80, 0.08);
+  color: rgba(255, 120, 120, 0.95);
+}
+.task-control-btn.delete-btn:hover {
+  border-color: rgba(255, 80, 80, 0.28);
+  color: #ff5c5c;
+}
+
+/* Archive (friendly) button treatment */
+.task-control-btn.archive-btn {
+  border-color: rgba(80, 140, 255, 0.06);
+  color: rgba(160, 190, 255, 0.95);
+}
+.task-control-btn.archive-btn:hover {
+  border-color: rgba(80, 140, 255, 0.18);
+  color: #9fc6ff;
+}
+
+/* Mini timer inside tasks panel */
+.mini-timer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin: 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+.mini-timer .mini-timer-time {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.mini-timer .mini-timer-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 .timer-tool .timer-time {
@@ -1958,41 +2049,14 @@ input:focus-visible,
   display: none;
 }
 
+#btnSettingsLegacy {
+  display: none;
+}
+
 .timer-tool-actions {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-}
-
-.timer-mini-counter {
-  display: none;
-  font-size: 0.65rem;
-  font-variant-numeric: tabular-nums;
-  font-family: var(--font-mono);
-  color: var(--primary);
-  background: rgba(108, 92, 231, 0.15);
-  border: 1px solid rgba(108, 92, 231, 0.3);
-  border-radius: 999px;
-  padding: 1px 6px;
-  line-height: 1.4;
-  letter-spacing: 0.02em;
-  animation: pulse-icon 2s ease-in-out infinite;
-}
-
-.timer-mini-counter.visible {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.timer-mini-counter::before {
-  content: '';
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--primary);
-  flex-shrink: 0;
 }
 
 .timer-tool-close {
@@ -2053,6 +2117,13 @@ body.matrix-enabled .matrix-layer {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 22px 52px rgba(0, 0, 0, 0.32);
+  transition: background var(--transition-normal), backdrop-filter var(--transition-normal);
+}
+
+body.matrix-enabled .view-tasks .tasks-app {
+  background: rgba(11, 13, 23, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 .tasks-header {
@@ -2100,7 +2171,6 @@ body.matrix-enabled .matrix-layer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -2110,6 +2180,12 @@ body.matrix-enabled .matrix-layer {
   color: var(--text-primary);
   border-color: rgba(255, 255, 255, 0.22);
   background: rgba(255, 255, 255, 0.12);
+}
+
+.tasks-tool-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .tasks-tool-btn.settings-chip {
@@ -2151,31 +2227,6 @@ body.matrix-enabled .matrix-palette-toggle {
 
 body:not(.matrix-enabled) .matrix-controls {
   display: none;
-}
-
-/* Panel-settings: hide the timer content behind the settings backdrop */
-body.panel-settings .timer-tool.open .app > *:not(#settingsPanel) {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Matrix mode: dim all floating panels, restore on hover */
-body.matrix-active:not(.panel-settings) .view-tasks .tasks-app {
-  opacity: 0.45;
-  transition: opacity var(--transition-normal);
-}
-
-body.matrix-active:not(.panel-settings) .view-tasks .tasks-app:hover {
-  opacity: 0.9;
-}
-
-body.matrix-active.panel-timer .timer-tool.open .app {
-  opacity: 0.45;
-  transition: opacity var(--transition-normal);
-}
-
-body.matrix-active.panel-timer .timer-tool.open .app:hover {
-  opacity: 0.9;
 }
 
 @media (max-width: 420px) {

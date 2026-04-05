@@ -2182,6 +2182,12 @@ body.matrix-enabled .view-tasks .tasks-app {
   background: rgba(255, 255, 255, 0.12);
 }
 
+.tasks-tool-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
 .tasks-tool-btn.settings-chip {
   width: 28px;
   height: 28px;

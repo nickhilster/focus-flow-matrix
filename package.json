@@ -54,11 +54,20 @@
       ]
     },
     "viewsContainers": {
-      "panel": [
+      "activitybar": [
         {
-          "id": "focusFlowPanel",
+          "id": "focusFlow",
           "title": "FlowBoard",
-          "icon": "$(clock)"
+          "icon": "media/icon-light.svg"
+        }
+      ]
+    },
+    "views": {
+      "focusFlow": [
+        {
+          "id": "focusFlowView",
+          "name": "FlowBoard",
+          "type": "webview"
         }
       ]
     }

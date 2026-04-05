@@ -228,109 +228,62 @@
           </svg>
         </button>
 
-        <!-- Settings Panel -->
-        <div class="settings-panel hidden" id="settingsPanel">
-          <div class="settings-backdrop" id="settingsBackdrop"></div>
-          <div class="settings-content">
-            <h2 class="settings-title">Settings</h2>
-            <div class="setting-group">
-              <label class="setting-label">Focus Duration</label>
-              <div class="setting-control">
-                <button
-                  class="stepper-btn"
-                  data-target="focusDuration"
-                  data-action="dec"
-                >
-                  −
-                </button>
-                <span class="setting-value" id="focusDuration">25</span>
-                <span class="setting-unit">min</span>
-                <button
-                  class="stepper-btn"
-                  data-target="focusDuration"
-                  data-action="inc"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            <div class="setting-group">
-              <label class="setting-label">Short Break</label>
-              <div class="setting-control">
-                <button
-                  class="stepper-btn"
-                  data-target="shortBreakDuration"
-                  data-action="dec"
-                >
-                  −
-                </button>
-                <span class="setting-value" id="shortBreakDuration">5</span>
-                <span class="setting-unit">min</span>
-                <button
-                  class="stepper-btn"
-                  data-target="shortBreakDuration"
-                  data-action="inc"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            <div class="setting-group">
-              <label class="setting-label">Long Break</label>
-              <div class="setting-control">
-                <button
-                  class="stepper-btn"
-                  data-target="longBreakDuration"
-                  data-action="dec"
-                >
-                  −
-                </button>
-                <span class="setting-value" id="longBreakDuration">15</span>
-                <span class="setting-unit">min</span>
-                <button
-                  class="stepper-btn"
-                  data-target="longBreakDuration"
-                  data-action="inc"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            <div class="setting-group">
-              <label class="setting-label">Sessions before long break</label>
-              <div class="setting-control">
-                <button
-                  class="stepper-btn"
-                  data-target="sessionsBeforeLong"
-                  data-action="dec"
-                >
-                  −
-                </button>
-                <span class="setting-value" id="sessionsBeforeLong">4</span>
-                <button
-                  class="stepper-btn"
-                  data-target="sessionsBeforeLong"
-                  data-action="inc"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            <div class="setting-group">
-              <label class="setting-label">Sound</label>
-              <div class="setting-control">
-                <button class="toggle-btn active" id="soundToggle">On</button>
-              </div>
-            </div>
-            <div class="setting-group">
-              <label class="setting-label">Reduced Motion</label>
-              <div class="setting-control">
-                <button class="toggle-btn" id="reducedMotionToggle">Off</button>
-              </div>
-            </div>
-            <button class="settings-close" id="btnCloseSettings">Done</button>
+      </div>
+    </div>
+
+    <!-- Settings Panel — lives at body level so position:fixed covers the full viewport -->
+    <div class="settings-panel hidden" id="settingsPanel">
+      <div class="settings-backdrop" id="settingsBackdrop"></div>
+      <div class="settings-content">
+        <h2 class="settings-title">Settings</h2>
+        <div class="setting-group">
+          <label class="setting-label">Focus Duration</label>
+          <div class="setting-control">
+            <button class="stepper-btn" data-target="focusDuration" data-action="dec">−</button>
+            <span class="setting-value" id="focusDuration">25</span>
+            <span class="setting-unit">min</span>
+            <button class="stepper-btn" data-target="focusDuration" data-action="inc">+</button>
           </div>
         </div>
+        <div class="setting-group">
+          <label class="setting-label">Short Break</label>
+          <div class="setting-control">
+            <button class="stepper-btn" data-target="shortBreakDuration" data-action="dec">−</button>
+            <span class="setting-value" id="shortBreakDuration">5</span>
+            <span class="setting-unit">min</span>
+            <button class="stepper-btn" data-target="shortBreakDuration" data-action="inc">+</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Long Break</label>
+          <div class="setting-control">
+            <button class="stepper-btn" data-target="longBreakDuration" data-action="dec">−</button>
+            <span class="setting-value" id="longBreakDuration">15</span>
+            <span class="setting-unit">min</span>
+            <button class="stepper-btn" data-target="longBreakDuration" data-action="inc">+</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Sessions before long break</label>
+          <div class="setting-control">
+            <button class="stepper-btn" data-target="sessionsBeforeLong" data-action="dec">−</button>
+            <span class="setting-value" id="sessionsBeforeLong">4</span>
+            <button class="stepper-btn" data-target="sessionsBeforeLong" data-action="inc">+</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Sound</label>
+          <div class="setting-control">
+            <button class="toggle-btn active" id="soundToggle">On</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <label class="setting-label">Reduced Motion</label>
+          <div class="setting-control">
+            <button class="toggle-btn" id="reducedMotionToggle">Off</button>
+          </div>
+        </div>
+        <button class="settings-close" id="btnCloseSettings">Done</button>
       </div>
     </div>
 

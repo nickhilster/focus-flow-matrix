@@ -12,10 +12,23 @@ const fs = require("fs");
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+  // Register the sidebar/panel WebviewView provider
+  const viewProvider = new FocusFlowViewProvider(context.extensionUri);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      FocusFlowViewProvider.viewType,
+      viewProvider,
+      { webviewOptions: { retainContextWhenHidden: true } },
+    ),
+  );
+
   const openTimerCommand = vscode.commands.registerCommand(
     "focusFlow.openTimer",
     () => {
-      FocusFlowPanel.createOrShow(context.extensionUri);
+      // Reveal the sidebar view; fall back to a panel if unavailable
+      vscode.commands.executeCommand('focusFlowView.focus').then(undefined, () => {
+        FocusFlowPanel.createOrShow(context.extensionUri);
+      });
     },
   );
 
@@ -30,11 +43,9 @@ function activate(context) {
         );
         return;
       }
-      FocusFlowPanel.createOrShow(context.extensionUri);
-      FocusFlowPanel.currentPanel?.postMessage({
-        type: 'focusFlow/quickAddTask',
-        payload: { text: selected },
-      });
+      const msg = { type: 'focusFlow/quickAddTask', payload: { text: selected } };
+      viewProvider.postMessage(msg);
+      FocusFlowPanel.currentPanel?.postMessage(msg);
     },
   );
 
@@ -49,11 +60,9 @@ function activate(context) {
         return;
       }
       const fileName = editor.document.fileName.split(/[/\\\\]/).pop() || 'Active File';
-      FocusFlowPanel.createOrShow(context.extensionUri);
-      FocusFlowPanel.currentPanel?.postMessage({
-        type: 'focusFlow/quickAddTask',
-        payload: { text: `Review ${fileName}` },
-      });
+      const msg = { type: 'focusFlow/quickAddTask', payload: { text: `Review ${fileName}` } };
+      viewProvider.postMessage(msg);
+      FocusFlowPanel.currentPanel?.postMessage(msg);
     },
   );
 
@@ -61,6 +70,61 @@ function activate(context) {
 }
 
 function deactivate() {}
+
+// ─── Shared helpers ──────────────────────────────────────────────────────────
+
+function _getHtmlForWebview(webview, extensionUri) {
+  const styleUri = webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, "media", "style.css"),
+  );
+  const scriptUri = webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, "media", "app.js"),
+  );
+  const htmlPath = vscode.Uri.joinPath(extensionUri, "media", "index.html").fsPath;
+  let htmlContent = fs.readFileSync(htmlPath, "utf8");
+
+  const nonce = getNonce();
+  const cspTag = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; font-src ${webview.cspSource}; script-src 'nonce-${nonce}' ${webview.cspSource};">`;
+  htmlContent = htmlContent.replace("<head>", `<head>\n  ${cspTag}`);
+  htmlContent = htmlContent.replace('href="style.css"', `href="${styleUri}"`);
+  htmlContent = htmlContent.replace(
+    /<script\b[^>]*\bsrc="app\.js"[^>]*><\/script>/,
+    `<script type="module" nonce="${nonce}" src="${scriptUri}"></script>`,
+  );
+  return htmlContent;
+}
+
+function _handleWebviewMessage(message) {
+  if (!message || typeof message.type !== 'string') return;
+  // Future contract events handled here
+}
+
+// ─── Sidebar / panel WebviewView provider ────────────────────────────────────
+
+class FocusFlowViewProvider {
+  static viewType = "focusFlowView";
+
+  constructor(extensionUri) {
+    this._extensionUri = extensionUri;
+    this._view = undefined;
+  }
+
+  resolveWebviewView(webviewView) {
+    this._view = webviewView;
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [vscode.Uri.joinPath(this._extensionUri, "media")],
+    };
+    webviewView.webview.html = _getHtmlForWebview(webviewView.webview, this._extensionUri);
+    webviewView.webview.onDidReceiveMessage((message) => _handleWebviewMessage(message));
+  }
+
+  postMessage(message) {
+    this._view?.webview.postMessage(message);
+  }
+}
+
+// ─── Editor-tab panel (legacy / command fallback) ────────────────────────────
 
 class FocusFlowPanel {
   static currentPanel = undefined;
@@ -102,7 +166,7 @@ class FocusFlowPanel {
     this._extensionUri = extensionUri;
 
     // Set the webview's HTML content
-    this._panel.webview.html = this._getHtmlForWebview(this._panel.webview);
+    this._panel.webview.html = _getHtmlForWebview(this._panel.webview, this._extensionUri);
 
     // Set panel icon
     this._panel.iconPath = {
@@ -111,7 +175,7 @@ class FocusFlowPanel {
     };
 
     this._panel.webview.onDidReceiveMessage(
-      (message) => this._handleWebviewMessage(message),
+      (message) => _handleWebviewMessage(message),
       null,
     );
 
@@ -128,47 +192,6 @@ class FocusFlowPanel {
     this._panel.webview.postMessage(message);
   }
 
-  _handleWebviewMessage(message) {
-    if (!message || typeof message.type !== 'string') return;
-
-    switch (message.type) {
-      case 'focusFlow/ready':
-        // Future contract events can be handled here.
-        break;
-      default:
-        break;
-    }
-  }
-
-  _getHtmlForWebview(webview) {
-    const styleUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "style.css"),
-    );
-    const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "media", "app.js"),
-    );
-    const htmlPath = vscode.Uri.joinPath(
-      this._extensionUri,
-      "media",
-      "index.html",
-    ).fsPath;
-    let htmlContent = fs.readFileSync(htmlPath, "utf8");
-
-    const nonce = getNonce();
-
-    // Inject CSP meta tag right after title, or head opening
-    const cspTag = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data:; font-src ${webview.cspSource}; script-src 'nonce-${nonce}';">`;
-    htmlContent = htmlContent.replace("<head>", `<head>\n  ${cspTag}`);
-
-    // Update stylesheet and script locations to webview URIs
-    htmlContent = htmlContent.replace('href="style.css"', `href="${styleUri}"`);
-    htmlContent = htmlContent.replace(
-      '<script src="app.js"></script>',
-      `<script type="module" nonce="${nonce}" src="${scriptUri}"></script>`,
-    );
-
-    return htmlContent;
-  }
 }
 
 function getNonce() {
