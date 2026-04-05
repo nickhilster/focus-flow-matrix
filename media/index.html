@@ -153,9 +153,10 @@
             />
             <g class="tick-marks" id="tickMarks"></g>
           </svg>
-          <div class="timer-display">
+          <div class="timer-display" aria-live="polite" aria-atomic="true">
             <div class="timer-time" id="timerTime">25:00</div>
             <div class="timer-label" id="timerLabel">FOCUS TIME</div>
+            <div id="timerStatusMessage" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
           </div>
           <div class="particle-ring" id="particleRing"></div>
         </div>
@@ -441,8 +442,18 @@
             </div>
           </div>
 
-          <button class="task-add-btn" id="btnAddTask" type="button">Add Task</button>
+          <button class="task-add-btn" id="btnAddTask" type="button" aria-label="Add task">Add Task</button>
         </div>
+
+        <section class="onboarding-panel" id="taskOnboarding" aria-live="polite" aria-labelledby="onboardingHeading">
+          <h3 id="onboardingHeading">Quick Start</h3>
+          <p>Capture tasks faster with editor selection or the active file command, jump into Timer or Matrix mode, and use keyboard shortcuts.</p>
+          <ul>
+            <li>Press Enter to add a task.</li>
+            <li>Use the editor command when text is selected.</li>
+            <li>Press <strong>M</strong> for Matrix and <strong>P</strong> for Timer.</li>
+          </ul>
+        </section>
 
         <div class="tasks-list" id="tasksList">
           <p class="tasks-empty" id="tasksEmpty">No tasks yet.</p>
@@ -624,7 +635,7 @@
       </div>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>
 

@@ -24,6 +24,16 @@
         "command": "focusFlow.openTimer",
         "title": "FlowBoard: Open Task Workspace",
         "icon": "$(clock)"
+      },
+      {
+        "command": "focusFlow.quickAddTaskFromSelection",
+        "title": "FlowBoard: Quick Add Task from Selection",
+        "icon": "$(add)"
+      },
+      {
+        "command": "focusFlow.quickAddTaskFromActiveFile",
+        "title": "FlowBoard: Quick Add Task from Active File",
+        "icon": "$(file)"
       }
     ],
     "menus": {
@@ -31,6 +41,15 @@
         {
           "command": "focusFlow.openTimer",
           "group": "navigation@-999"
+        },
+        {
+          "command": "focusFlow.quickAddTaskFromSelection",
+          "when": "editorHasSelection",
+          "group": "navigation@-998"
+        },
+        {
+          "command": "focusFlow.quickAddTaskFromActiveFile",
+          "group": "navigation@-997"
         }
       ]
     },
@@ -47,8 +66,12 @@
   "scripts": {
     "sync:webview": "node scripts/sync-webview.js",
     "prepackage": "npm run sync:webview",
-    "package": "npx -y @vscode/vsce package --no-dependencies"
+    "package": "npx -y @vscode/vsce package --no-dependencies",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "vitest": "^1.4.5"
+  }
 }
 

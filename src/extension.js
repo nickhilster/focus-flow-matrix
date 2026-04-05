@@ -1,4 +1,10 @@
-const vscode = require("vscode");
+const vscode = (() => {
+  try {
+    return require("vscode");
+  } catch (e) {
+    return globalThis.__MOCK_VSCODE__ || {};
+  }
+})();
 const path = require("path");
 const fs = require("fs");
 
@@ -13,7 +19,45 @@ function activate(context) {
     },
   );
 
-  context.subscriptions.push(openTimerCommand);
+  const quickAddSelection = vscode.commands.registerCommand(
+    "focusFlow.quickAddTaskFromSelection",
+    () => {
+      const editor = vscode.window.activeTextEditor;
+      const selected = editor?.document.getText(editor.selection).trim();
+      if (!selected) {
+        vscode.window.showInformationMessage(
+          'Select text in the editor to capture a FlowBoard task.',
+        );
+        return;
+      }
+      FocusFlowPanel.createOrShow(context.extensionUri);
+      FocusFlowPanel.currentPanel?.postMessage({
+        type: 'focusFlow/quickAddTask',
+        payload: { text: selected },
+      });
+    },
+  );
+
+  const quickAddActiveFile = vscode.commands.registerCommand(
+    "focusFlow.quickAddTaskFromActiveFile",
+    () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showInformationMessage(
+          'Open a file to capture its context as a FlowBoard task.',
+        );
+        return;
+      }
+      const fileName = editor.document.fileName.split(/[/\\\\]/).pop() || 'Active File';
+      FocusFlowPanel.createOrShow(context.extensionUri);
+      FocusFlowPanel.currentPanel?.postMessage({
+        type: 'focusFlow/quickAddTask',
+        payload: { text: `Review ${fileName}` },
+      });
+    },
+  );
+
+  context.subscriptions.push(openTimerCommand, quickAddSelection, quickAddActiveFile);
 }
 
 function deactivate() {}
@@ -66,6 +110,11 @@ class FocusFlowPanel {
       dark: vscode.Uri.joinPath(extensionUri, "media", "icon-dark.svg"),
     };
 
+    this._panel.webview.onDidReceiveMessage(
+      (message) => this._handleWebviewMessage(message),
+      null,
+    );
+
     // Listen for when the panel is disposed
     this._panel.onDidDispose(() => this.dispose(), null);
   }
@@ -73,6 +122,22 @@ class FocusFlowPanel {
   dispose() {
     FocusFlowPanel.currentPanel = undefined;
     this._panel.dispose();
+  }
+
+  postMessage(message) {
+    this._panel.webview.postMessage(message);
+  }
+
+  _handleWebviewMessage(message) {
+    if (!message || typeof message.type !== 'string') return;
+
+    switch (message.type) {
+      case 'focusFlow/ready':
+        // Future contract events can be handled here.
+        break;
+      default:
+        break;
+    }
   }
 
   _getHtmlForWebview(webview) {
@@ -99,7 +164,7 @@ class FocusFlowPanel {
     htmlContent = htmlContent.replace('href="style.css"', `href="${styleUri}"`);
     htmlContent = htmlContent.replace(
       '<script src="app.js"></script>',
-      `<script nonce="${nonce}" src="${scriptUri}"></script>`,
+      `<script type="module" nonce="${nonce}" src="${scriptUri}"></script>`,
     );
 
     return htmlContent;
